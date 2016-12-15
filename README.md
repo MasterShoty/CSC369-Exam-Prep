@@ -22,3 +22,12 @@ reference.  When you are done, go to `cheatsheet.tex` and under
 `\input{lectures/lecture1}` your file as `\input{lecture/lecture[n]}`.
 
 Do NOT commit the pdf file, and do NOT commit any logs or output files.
+
+## Sections
+
+The Cheatsheet should be split into 5 section:
+  1. Definitions
+  2. Processes, Threads, System Calls
+  3. Synchronization, Condition Variables, Scheduling
+  4. Scheduling, Memory Management, Paging
+  5. File Systems, Deadlock, Security
