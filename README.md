@@ -16,12 +16,9 @@ ide, and then you wont need the Makefile).
 
 ## Contributing
 
-If you want to add a lecutre, create a LaTeX file in `lectures/` called
-`lecture[n].tex`, and then type regular LaTeX; use `lectures/lecuture1.tex` for
-reference.  When you are done, go to `cheatsheet.tex` and under
-`\input{lectures/lecture1}` your file as `\input{lecture/lecture[n]}`.
+Edit a specific file in `sections/`. The available sections are below.
+Feel free to add an issue if you feel like more sections are necessary.
 
-Do NOT commit the pdf file, and do NOT commit any logs or output files.
 
 ## Sections
 
