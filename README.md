@@ -28,3 +28,7 @@ The Cheatsheet should be split into 5 section:
   3. Synchronization, Condition Variables, Scheduling
   4. Scheduling, Memory Management, Paging
   5. File Systems, Deadlock, Security
+
+## Notes
+
+To download the 369 notes, use the download_notes script.
