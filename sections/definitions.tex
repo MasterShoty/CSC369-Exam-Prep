@@ -1,2 +1,45 @@
+\newcommand{\deff} [2] {\uppercase{\scriptsize #1} {\tiny #2}}
+% ^ this is a latex macro.
+% it is called with the command `deff` and takes 2 arguments,
+% \deff{name}{means this} => NAME means this 
+%  ^    ^     ^ the definition
+%  |    |what to define
+%  |command name
 \section{Definitions}
+
+% Lecture 1
+
+\deff{OS}{A virtual machine, resource allocator, and control program whos goal
+is the comfort of the user and then efficienty of operations}
+
+\deff{Interrupts}{A hardware signal that causes the CPU to jump to a predefined
+instruction called the \textit{interrupt handler}}
+
+\deff{Mode Bit}{Allows for dual mode operations, like \textit{user mode} and
+\textit{system mode}, where there are privileged instructions, such as (en/dis)abilng
+interrupts, halting CPI, writing to registers, etc.}
+
+\deff{Process}{A program in execution. A program has potential for execution.
+Contains the state of a program}
+
+\deff{PCB}{(Process Control Blockr) Contains state, program counter, cpu
+registers/scheduling info, i/o info, etc}
+
+\deff{Context Switch}{switching the cpu to another process by saving the state
+of the old one and loading the saved state for the new proccess. this happens
+only when a process calls yield(), makes a syscall, or the timer decides to
+switch}
+
+\deff{Zombie}{A process that has not been cleaned up by its parent}
+
+% =================Lecture 2==========================
+\deff{System Call}{a function call that invokes the operating system}
+
+\deff{independent}{a process that cannot affect or be affected by other process (no data sharing)}
+
+\deff{cooperating}{a process that is not independent}
+
+\deff{thread}{a control flow through a program}
+
+\deff{multithreaded}{a program with multiple control flows}
 
