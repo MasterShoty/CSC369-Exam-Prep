@@ -1,1 +1,79 @@
 \section{Synch, Cond Vars, Scheduling}
+Two main uses of synchronization: critical section problem, order of thread exec.
+By threads in the same address space, local variables are \textit{private}, but
+global variables, static objects, dynamic objects, and things on the heap are
+\textit{shared}.
+\begin{lstlisting}[basicstyle=\tiny,language=c]
+// Peterson's Algorithm
+int turn, flags[2];
+// flags initial: [0,0]. used to show interest
+
+func work(id_t id) // id 0 or 1
+  flag[id] = 1; // true
+  turn = id;
+  while (turn == id && flag[1-id]) {} 
+  // critical section goes here ...
+  flag[id] = 0; // exit section
+  // remainder section goes here ...
+\end{lstlisting}
+\begin{lstlisting}[basicstyle=\tiny, language=c]
+// Bakery
+int choosing[NUM_THREADS], number[NUM_THREADS];
+func work(id_t id)
+  choosing[id] = 1; // entering a `critical section'
+  number[id] = max(number) + 1;
+  choosing[id] = 0; // exiting a `critical section'
+  for (int j = 0; j < NUM_THREADS; j++)
+  { // (a,b) < (c,d) <=> (a < c) || (a == c && b < d)
+    while (choosing[j]) {}   
+    while (number[j] != 0 
+      && ((number[j], j) < (number[i],i))) {}
+  }
+  // critical section goes here
+  number[id] = 0; // exit section
+\end{lstlisting}
+
+\subsection*{Semaphores}
+These include an integer \textit{counter}, accessed through an atomic
+{\tt wait (decrement, P)} and {\tt signal (increment, V)}, and a queue of
+waiting threads. There are two types, \textit{binary/mutex} and
+\textit{counting semaphore}. The binary works the same as a lock (locks have
+owners, semaphores dont). The counting
+semaphore is a resource with many units avaialble that allows certian kinds of
+unsynchronized concurrent accesses (like reading). Multiple threads can pass
+the semaphore, and the max num of threads is determined by the intitial. Atomic
+instructions are done through \textbf{test-and-set}, which does
+{\tt 
+bool testAndSet(bool *lock): bool old = *lock; *lock = true; return old
+}.
+
+Problems with machine insructions: 1. starvation is possible, 2. deadlock is
+possible through priority inversion.
+
+
+\subsection*{Condition Variables}
+CVs keep a queue of waiting threads, and have three atomic operations,
+{\tt cvWait(cv *cv, mtx *mutex)}, releases lock, waits, and reacquires before
+return), {\tt cvSignal(cv *cv) }, which wakes one enqueed thread, and {\tt
+cvBroadcast(cv *cv)}, which wakes all enqueued threads. CVs are \textit{always used with locks}, the locks protect the shared data being modified and tested when deciding wheter to wait or signal/broadcast
+\begin{lstlisting}[basicstyle=\tiny, language=c]
+lock_acquire(lock);
+while (condition not true) { cv_wait(cond, lock); }
+// do stuff
+cv_signal(cond); // or cv_broadcast(cond);
+lock_release(lock);
+\end{lstlisting}
+\textbf{Monitors} enforce mutual exclusion, since local data is only accessed by the monitor's procedures. A process enters the monitor by invoking one of its procedures. Other processes are blocked.
+If process $P$ executes $x.signal$ operation and $\exists$ a suspended proccess
+$Q$ that is associated with condition $x$, then we have an issue, so we use
+\textbf{Hoare} and \textbf{Mesa} semantics to deal with this. To use monitors in 
+C, you need a bounded buffer of size $N$, a function {\tt addToBuffer()} and
+{\tt removeFromBuffer()}, one lock (only lock holder is allowed to be active in
+one of the monitors functions), and two CVs, one to make producers wait, one to
+make consumers wait.
+Pattern for using monotirs
+    1. acquire lock
+    2. call {\tt cvWait()} only inside {\tt while()} loop (mesa)
+    3. whenever a CV being waited on might have changed (F to T), signal
+    corresponding CV.
+    4. release the lock on the monitor.
