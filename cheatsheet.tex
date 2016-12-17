@@ -12,6 +12,7 @@
 \usepackage[top=0mm,bottom=1mm,left=0mm,right=1mm]{geometry}
 \usepackage[framemethod=tikz]{mdframed}
 \usepackage{microtype}
+\usepackage{listings}
 
 \let\bar\overline
 
@@ -181,13 +182,9 @@ by~Your~Name,~page~\thepage~of~2
 \begin{multicols*}{5}
 \input{sections/definitions}
 % remove the column break if there is no more room
-\columnbreak
 \input{sections/process-thread-syscalls}
-\columnbreak
 \input{sections/synch-cond_var-sched}
-\columnbreak
 \input{sections/sched-mem_mgmnt-paging}
-\columnbreak
 \input{sections/fs-deadlock-security}
 \end{multicols*}
 \end{document}

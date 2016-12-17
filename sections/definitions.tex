@@ -43,3 +43,33 @@ switch}
 
 \deff{multithreaded}{a program with multiple control flows}
 
+% =================Lecture 3==========================
+\deff{race condition}{when the outcome depends on the order of execution}
+
+\deff{mutual exclusion}{one thread in the critical section (CS) $\implies$ no other is}
+
+\deff{progress}{No thread in CS, $\exists T \in Threads, T$ wants to enter CS $\implies T$ enters, regardless of what is in remaineder}
+
+\deff{bounded waiting}{There is an upper bound on the number of threads that
+enter the CS before a thread that wants to enter goes in}
+
+\deff{Performance}{(Threads) the overhead of entering/exiting CS is small
+w.r.t work being done in it.}
+
+\deff{atomic}{An instruction that cannot be interupted. If two instructions
+are executed concurrently, the result is equivalent to the sequential
+execution in an unknown order} 
+
+% =================Lecture 4==========================
+\deff{Condition Variable}{an ADT that encapsulates the pattern: release mutex,
+sleep, re-acquire mutex}
+
+\deff{Monitor}{an ADT with the restriction that only one process at a time can
+be active within the monitor}
+
+\deff{Hoare Monitor}{ {\tt signal()} immediately switches from caller to a
+waiting thread, condition that waiter was blocked on is guaranteed to hold when
+waiter resumes. Needs another queue for the signaler if signaler was not done
+using monitor}
+
+\deff{Mesa monitors}{ {\tt signal()} places a waiter on the ready queue, but signaler continues inside monitor. The condition is not necessarily true when the waiter resumes, and the condition must be checked again. Uses a while loop }

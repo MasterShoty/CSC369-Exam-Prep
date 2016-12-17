@@ -69,3 +69,26 @@ proceess, instead it loads {\tt prog} into the current process.
 \fill [black] (20.8,-21.7) -- (20.3,-22.5) -- (21.3,-22.5);
 \draw (20.3,-23.1) node [left] {$event\mbox{ }occurs$};
 \end{tikzpicture}
+
+% ======= Lecture 2 =========
+
+
+Programs and the OS communicate through \textit{system calls}. \textbf{interrupts} are used to keep apps from using recources w/o asking permission. When an
+interrupt occurs, there must be a \textit{reason}, which is stored in a
+register that is used to invoke a \textit{handler}. The result of a syscall
+is stored in register {\tt EAX}.  
+ A syscall dispatch: <kernel: give each syscall a num and put in
+syscall table, user calls syscall n, hardware switches to kerne mode and
+invokes an interrupt dispatch, looks up syscall num with table, invokes the
+function, returns {\tt iret}>
+
+\subsection*{Threads}
+separating address space from execution allows for multiple executions in one
+space. This allows for easy sharing data, easy creation/destruction, and
+performance increases. \textbf{threads} get their own space in the stack and
+their own PC, but share a heap. Kernel level threads may suffer from a lot of
+overhead, since they still require system calls, and need to support all
+languages, etc. So user level threads are used instead, without kernel
+involvement. Limitations of user level threads are: <invisible to OS: OS can
+make poor decisions regarding them, such as descheudling a thread w/ lock>.
+
