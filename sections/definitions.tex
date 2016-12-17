@@ -1,7 +1,7 @@
 \newcommand{\deff} [2] {\uppercase{\scriptsize #1} {\tiny #2}}
-% ^ this is a latex macro.
+%Feedback ^ this is a latex macro.
 % it is called with the command `deff` and takes 2 arguments,
-% \deff{name}{means this} => NAME means this 
+% \deff{nFeedbaceame}{means this} => NAME means this 
 %  ^    ^     ^ the definition
 %  |    |what to define
 %  |command name
@@ -72,4 +72,12 @@ waiting thread, condition that waiter was blocked on is guaranteed to hold when
 waiter resumes. Needs another queue for the signaler if signaler was not done
 using monitor}
 
-\deff{Mesa monitors}{ {\tt signal()} places a waiter on the ready queue, but signaler continues inside monitor. The condition is not necessarily true when the waiter resumes, and the condition must be checked again. Uses a while loop }
+\deff{Mesa monitors}{ {\tt signal()} places a waiter on the ready queue, but
+signaler continues inside monitor. The condition is not necessarily true when
+the waiter resumes, and the condition must be checked again. Uses a while loop
+}
+
+\deff{priority inversion}{a low priority task preventing a high priority task
+from making progress by holding a resource}
+
+\deff{starvation}{a task that does not get to run}

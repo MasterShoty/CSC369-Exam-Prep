@@ -91,46 +91,6 @@ conflict with each other. Types of CPU scheduling include \textit{admission
 scheduling/control} (used in batch systems), \textit{medium-term/memory
 scheduling} (decides which processes are swapped out to disk), and
 \textit{short term scheduling} (dispatching), which needs to be efficient.
-Dispatching is called \textbf{context switching}, where current state is
-saved, and the next thread is restored. A thread is scheduled when it enters
-the ready state, when the running thread blocks (or exits) or at fixed
-intervals. Two types of scheduling are \textit{non-preemptive} schduling (once
-CPU is allocated to a thread, it keeps the CPU until it terminates -- good for
-batch), and \textit{preemptive} scheduling, where the cpu can be taken froma thread and
-allocated to another
-\begin{center}
-\begin{tikzpicture}[scale=0.12]
-\tikzstyle{every node}+=[inner sep=0pt]
-\draw [black] (15.8,-10.8) circle (3);
-\draw (15.8,-10.8) node {$suspend$};
-\draw [black] (22.9,-5.3) circle (3);
-\draw (22.9,-5.3) node {$new$};
-\draw [black] (28.8,-10.8) circle (3);
-\draw (28.8,-10.8) node {$ready$};
-\draw [black] (41.2,-10.8) circle (3);
-\draw (41.2,-10.8) node {$running$};
-\draw [black] (35.1,-15.2) circle (3);
-\draw (35.1,-15.2) node {$blocked$};
-\draw [black] (18.8,-10.8) -- (25.8,-10.8);
-\fill [black] (25.8,-10.8) -- (25,-10.3) -- (25,-11.3);
-\draw (22.3,-11.3) node [below] {$medium$};
-\draw [black] (20.53,-7.14) -- (18.17,-8.96);
-\fill [black] (18.17,-8.96) -- (19.11,-8.87) -- (18.5,-8.08);
-\draw (17.07,-7.55) node [above] {$long$};
-\draw [black] (25.09,-7.35) -- (26.61,-8.75);
-\fill [black] (26.61,-8.75) -- (26.36,-7.84) -- (25.68,-8.57);
-\draw (28.14,-7.57) node [above] {$long$};
-\draw [black] (31.8,-10.8) -- (38.2,-10.8);
-\fill [black] (38.2,-10.8) -- (37.4,-10.3) -- (37.4,-11.3);
-\draw (35,-10.3) node [above] {$short$};
-\draw [black] (38.2,-10.8) -- (31.8,-10.8);
-\fill [black] (31.8,-10.8) -- (32.6,-11.3) -- (32.6,-10.3);
-\draw [black] (38.77,-12.56) -- (37.53,-13.44);
-\fill [black] (37.53,-13.44) -- (38.47,-13.38) -- (37.89,-12.57);
-\draw [black] (32.64,-13.48) -- (31.26,-12.52);
-\fill [black] (31.26,-12.52) -- (31.63,-13.39) -- (32.2,-12.57);
-\end{tikzpicture}
-\end{center}
 \begin{itemize}
   \item FCFS. Each process runs to completion when it arrives.
   \item SJF (shortest job first). Pick the job with the shortest service time.
