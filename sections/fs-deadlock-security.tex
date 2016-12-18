@@ -1,10 +1,8 @@
-\section{File Systems, Deadlock, Security}
-
+{\bf File Systems, Deadlock, Security}
 {\bf Recap of address
 translation}
 page replacement algorithms need to avoid thrashing (it prevents useful work). Some solutions
 to thrashing include: swapping (write out all pages of procerss and suspsend it) and the OOM killer daemon.
-
 Previously, we assumed that the replacement algorithm chooses a victim page
 when a \emph{new page needs to be brought in}. But these algorithms are too
 costly to run on every page fault. Instead, we maintain a pool of free pages,
@@ -126,3 +124,116 @@ The system spends a lot of time walking directory paths, and this is why
 It's important to note that \texttt{inodes} are \emph{not} directories,
 but they describe where on the disk the blocks for a file are placed.
 \emph{Directory entries map file names \texttt{inodes}}
+{\bf Disk I/O and File System
+Optimization}
+We use most of the disk space to store user data (\texttt{D}), while
+leaving some space for metadata.
+The file system needs to keep the info of each file in an inode struct
+(the \texttt{I}s).
+We keep track of which blocks are being used and which are free, so we
+use a \emph{bitmap}, where each bit indicates if one block is free
+(\texttt{0}) or in use (\texttt{1}). We can keep track of 32 blocks with
+a 4kb data bitmap.
+The superblock contains information about this particular file system, like (1) the type of file system,
+(2) the num of inodes and data blocks, and (3) where the inode table begins.
+The OS first reads the super block when mounting the file system, it
+then attatches the volume to the file system tree with proper settings.
+{\bf Unix inode Structure}
+{\bf Pointer Based}
+If an inode contains an array of 15 \emph{direct pointers} that point to
+15 data blocks that belong to the file. Then the maximum file size
+supported is (15 * 4KB) 60KB. (4kb page size)
+But what if we have a file larger than 60kb?
+{\bf Multi-level index with direct
+pointers}
+Direct pointers to disk blocks dont support large files, so we use an
+\emph{indirect pointer}. The block points to pointers instead of user
+data.
+From the 15 pointers, we have an inode, so we use the first 14 as direct
+pointers and the 15th as an indirect, so we can now support a file of up
+to (4k * (14 + 1k) ) 4152kb.
+If we want even bigger files, we use a \emph{double indirect pointer},
+which is a pointer that points to a block full of indirect pointers
+which point to blocks of direct pointers.
+For the first 15 pointers, we use 13 as direct pointers, the 14th as an
+indirect pointer, and the 15th as a double indirect pointer. So we can
+now suppoer a file size of (4k * (13 + 1024 + 1024\^{}2)
+)\texttt{4.00GB}
+{\bf Extent Based}
+Another approach is using \emph{extent-base} method. An \emph{extent} is
+a disk pointer plus a length, so it allocates a few blocks in a row. Now
+instead of having a pointer to every block, we only need a pointer to
+every several blocks (every extent). This is less flexible than the
+pointer based approach, but the advantage is that we need less metadata.
+{\bf Linked Based}
+Instead of pointers to every block, just point to the first data block,
+and the first point to the second, etc. This isn't good if we want to
+access the last block of a large file.
+We can use a \emph{file allocation table}, indexed by address of data
+block, this is faster for finding a block.
+{\bf File System Optimization}
+{\bf Cashing}
+Filer operations incur a lot of disk i/o. For the file system to perform
+reasonably well, it does caching.
+{\bf File Buffer Cache}
+Apps exhibit significant locality for reading and writing files. Cache
+file blocks in memory to capture locality. This is called a \emph{File
+Buffer Cache}.
+Cache is system wide, and reading from it makes a disk perform like
+memory. Significant reuse is for spatial and temporal locality.
+We cache inodes, directory entries, disk blocks for `hot' files.
+Static Partitioning
+At boot time, allocate a fixed-size cache in memory (typically 10\%).
+But this can be wasteful if the file doesn't need all this.
+Dynamic Partitioning
+Integrate virtual memory pages and file system pages into a unified page
+cache.
+{\bf Caching Writes}
+We use a \emph{buffer} to buffer writes. This lets us combine multiple
+writes into one write (e.g.~updating multiple bits of the inode bitmap),
+imporve performance (shedule the writes so that they happen
+sequentially), and can help us avoid some writes (like changing a bit
+from 0 to 1 to 0 (undos)).
+Unofrtunately, buffering (and caching) sacrifice the durability of data.
+If a crash occurs, and the buffer has not been written to disk, we lose
+everything :'(, but if we sync to the disk more frequently, we loose
+spped.
+{\bf Disk Scheduling}
+High-level disk characteristics yield two {\bf goals }:
+(1) Closeness: Reduce seek times by putting related things together
+(2) Amoritization: grab a lot of useful data when in a position
+{\bf Allocation strategies:}
+Disk perform best when seeks are reduced and large transfers are used.
+We can make disks perform best by using scheduling requests and
+allocating data ``close together''.
+{\bf Original Unix File
+System}
+This is easy to implement, however performs poorly on the disk. On a new
+FS, blocks are allocated sequentially, however, and older FS will have
+gaps due to files being delted, and in an agin file system, data blocks
+can be allocated far from each other. Framgentation of aging FS
+=\textgreater{} more seeking.\\
+Since inodes are located at the beggining of the disk, they are far from
+the data, but every time we traverse a file path we need to inpspect the
+inodes first.
+{\bf BSD FFS}
+The BSD Fast File System (FFS) uses a cylinder group to address
+placement problems.
+Cylinder groups provide \emph{closeness}, and so free space is scattered
+across cylinders, and 10\% of the disk is reserved to keep the disk
+partially free at all times.
+{\bf Algorithms}
+  (1) FCFS
+  first come first serve, this is reasonable for low load, but has the
+  longest wait time for long requests
+  (2)
+  SSTF
+  shortest seek time first, this tries to minimize arm movements (seek
+  time) and maximize request rate, and favors the middle blocks
+  (3) SCAN
+  this is an elevator technique, it services requests in one direction
+  until done, then reverse
+  (4) C-SCAN
+  Like SCAN, but only goes in one direction, like a typewriter
+  (5) LOOK / C-LOOK
+  Like SCAN / C-SCAN, but does not go the full width of the disk.
