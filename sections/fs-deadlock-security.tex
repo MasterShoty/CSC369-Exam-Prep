@@ -1,1 +1,158 @@
 \section{File Systems, Deadlock, Security}
+
+{\bf Recap of address
+translation}
+page replacement algorithms need to avoid thrashing (it prevents useful work). Some solutions
+to thrashing include: swapping (write out all pages of procerss and suspsend it) and the OOM killer daemon.
+
+Previously, we assumed that the replacement algorithm chooses a victim page
+when a \emph{new page needs to be brought in}. But these algorithms are too
+costly to run on every page fault. Instead, we maintain a pool of free pages,
+run replacement algorithm when pool is small, grab a page on frame from free
+list on page fault, and Frames on free list can be rescued if virtual page is
+referenced before reallocation.
+{\bf Where to store page
+tables } can store them in physical memory (no translation required) or in virtual memory.
+{\bf Managing swap space} here we can use a raw disk partition, or use a large
+file in FS. tradeoffs include choosing when the swap be allocated/freed.
+{\bf Address translation
+reduction}
+
+\begin{itemize}
+\item
+  Read Access (Load)
+\item
+  Address goes to Translation Lookaside Buffer (TLB) in Memory
+  Management Unit (MMU)
+
+  \begin{itemize}
+  \item
+    TLB does lookup using page number of address
+  \item
+    Returns Page Table Entry (PTE) for the mapping of this address.
+    \emph{Could Miss}
+  \item
+    TLB validates the PTE protection (allows read) \emph{Could Miss}
+  \item
+    PTE specifies which \emph{physical} frame holds the page
+  \item
+    MMU combines physical frame and offset into a \emph{physical
+    address}.
+  \item
+    PTE specifies which \emph{physical} frame holds the page
+  \item
+    MMU combines physical frame and offset into a \emph{physical
+    address}.
+  \item
+    MMU reads from that physical address and returns value to CPI.
+  \end{itemize}
+\item
+  This is all done by hardware.
+\item
+  If the TLB does not have a mapping, either:
+
+  \begin{itemize}
+  \item
+    MMU loads PTE from page table in memory. (OS not involved in this)
+  \item
+    OS has already set up the page tables so the hardware can access it
+    directly.
+  \item
+    Trap to OS (Software managed TLB)
+  \item
+    OS does a lookup in page table and loads PTE into TLB.
+  \item
+    Return from the exception, and retry memory address.
+  \item
+    This is known as a \emph{minor page fault}. We have now created a
+    PTE for the addr in the TLB
+  \end{itemize}
+\end{itemize}
+
+{\bf Implementatoin concerns} How do we determine how much memory to give each
+process? We can use: (1) fixed space algorithms: when we reach space limit, do
+local replacement. or (2) variable space algorithms, where space of a page
+grows/shrinks dynamically (but one process can ruin it for the rest lol). or
+(3) a working set model, where $WS(t,d) = \{ p \in {\tt Pages} \bar p {\text
+referenced in } (t-d, t)$, where $t$ is time and $d$ is the working set window,
+meausred in page references. The working set (WS) changes with program
+locality, poor locality implies more page references, and it needs to be the
+set of pages a process needs in mem to prevent faulting, so we dont run a
+process unless the working set of that process is in memory. this is not
+practical cuz dertermining $d$ is difficult.  {\bf Shared Memory} is used to
+allow processes to share data using \emph{direct memory references}.  Here,
+both page tables map to the same physical frame, and each PTE can have
+different protecion values, and we need to update both PTEs when a page table
+becomes valid.
+{\bf Copy on Write}
+Defers large copies as long as possible, in hopes to avoid them
+altogether.uses   \emph{Shared mappings} instead. these are protected as read only.
+{\bf File Systems}
+File systems provide long term info storage. they need to (1) store large amounts of info that (2) needs to persist and (3) must be accessible.
+The OS needs to manage the physical storage media, and enforce access
+restriction, while the user only needs a convenient way of organizing
+information.
+We abstract secondary storage using \emph{files}, and we organize files
+using \emph{directories}.
+{\bf Files}
+{\bf Operations } done on files: (1) Creation, (2) writin, (3) reading, (4) repositioning, (5) deleting (the whole file) (6) truncating (deleting contents of file)
+The attributes of a file are stored in a suystem wide \emph{open-file
+table}. The page is located at the index of its file descriptior (hence
+\texttt{FILE\ *fd}). In this way we can do operations on a file.
+{\bf Directories}
+Directories provide a convenient naming interface for the file system,
+which allows for the implementation to distinguish between local file
+organization and physical memory placement on disk.
+A directory is a usually unordered list of entries, which are names and
+associated \emph{metadata}. Entries are usually sorted by the program
+that reads the directory.
+Directories are usually stored in files. In this way, you only need to
+manage on kind secondary storage unit.
+We can organize directories as a tree or a general acyclic graph.
+Acyclic graphs allow for shared directories. We can implement this using
+a linear list or a Hash table.
+{\bf Sharing}
+Sharing files is the basis for communications and synchronization.
+Key issues: semantics of concurrent access, protection.
+2 levels of internal tables: (1) Per-process table that stores the files that
+process has open. (2) The entry of the per-process table points to an entry in
+the system-wide open-file file table. (this gives process independent info).
+General-purpose file systems support simple methods, like sequential
+access (one byte at a time) and direct access (random access given a
+number of bytes).
+Database systems support more sophisticated methods, like indexed
+accesses or record accesses.
+{\bf File Links}
+We can implement sharing by creating a \emph{link}. A link is a
+directory entry that points to another file or subdirectory. We do this
+with \emph{hard links} (second directy entry identical to first) or a
+symbolic link (holds the true path to the linked file).
+The issue with acyclic graphs is traversal, and updating permissions,
+etc. is more difficult.
+{\bf File System Implementation}
+Define a \emph{block size} (like 4kb). The disk space is allocated in
+granulatiry of blocks
+Define a \emph{master block}, which determines the location of the root
+directory. This is usually placed at a well known disk location, and
+replicated across disk for reliability.
+Define a \emph{free map} which determines which blocks are free. This is
+usually a bitmap, with one bit per block on the disk. This is also
+stored on disk and cached in memory for performance.
+{\bf Disk Layout Strategies}
+We develop a solutions to finding all the blocks for a file that spans multiple
+blocks.  \emph{Contiguous Allocation} is like meomory, fast and simple, but
+inflexible and causes fragemntation \emph{Linked/Changed structure}, where each
+blocks points to the next, and the directory points to the first.
+\emph{Indexed structure}, where each ``index block'' contains pointers to other
+blocks. This handles randomness better, but may need multiple index blocks
+linked together.
+{\bf Inodes}
+Inodes implement an indexed file structure for file.
+All metadata is stored in inodes.
+Inodes contain 15 block pointers.
+Inodes are smaller than disk blocks.
+The system spends a lot of time walking directory paths, and this is why
+\emph{open} is separate from \emph{read/write}.
+It's important to note that \texttt{inodes} are \emph{not} directories,
+but they describe where on the disk the blocks for a file are placed.
+\emph{Directory entries map file names \texttt{inodes}}
