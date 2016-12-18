@@ -81,3 +81,22 @@ the waiter resumes, and the condition must be checked again. Uses a while loop
 from making progress by holding a resource}
 
 \deff{starvation}{a task that does not get to run}
+
+% =================Lecture 6==========================
+\deff{internal fragmentation}{the result of a process not using all the memory given to it}
+
+\deff{overlays}{when a program needs more memory than partition size}
+
+\deff{external fragmentation}{memory ``holes'' created by exiting processes
+that are too small to re-use}
+
+\deff{compaction}{moving processes around to create larger chunks of free space}
+
+\deff{page fault}{when a page requested is not in memory}
+
+\deff{temporal locality}{locations referenced recently are likely to be referenced again}
+
+\deff{spatial locality}{locations near recently referenced locations are likely to be referenced again}
+
+\deff{COW}{(copy on write) give a reference to the page until a write is made,
+then make room for it}

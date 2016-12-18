@@ -1,1 +1,34 @@
 \section{Mem Mgmnt, Paging}
+The disk is cheap, but very slow, so the DRAM acts like a cache for the disk. The
+OS helps programmers use DRAM through virtual memory. The goals of memory management are
+efficiency, transparency, and protection/sharing. For transparency, we give
+each process its own view of memory ($0 \rightarrow 2^{64} - 1$). \textit{fixed
+partitioning} has unequal sized partitions with a queue for each partition
+(process -> smallest fitting queue) (prob: lots of unused space).
+\textit{dynamic partitioning} puts a process into a partition of the right size
+it needs to hold it (prob: external frag, compaction may require processes to
+be \textit{relocatable}). We use \textbf{paging} to manage memory, where we
+decouple address space from physical location. A \textbf{page table} is used to
+translate virtual to physical addresses, each process has its own. \textbf{page
+faults} are handled by the OS, which loads a page from disk, and the process is
+paused until the data is brought from memory. Processes reference pages in
+\textbf{localized patterns} (temporal, spatial). The VM enforces protection by
+keeping address spaces isolated (per-process), and information leaks are
+prevented by using a 0-ed out page and giving the VA of that page, also COW. We
+also need to have address binding. This can happen either at compile time
+(relocation not possible), at load time (relocation not possible; the linker
+creates absolute addresses within executable), or dynamically (executables
+contain logical, not absolute, addresses which are translated during
+execution). H/W supports dynamic relocation with a \textit{base} and
+\textit{bound} registers on the MMU. The OS decided where to place address
+space in physical memory when the process is run. It first sets the base
+register, then the physicall address is: base + virtual address. The bound
+register ensures that we dont access things outside the given address space.
+(only one base/bound register, gets saved to PCB during context switch so it ca
+n be used for $n$ processes). Since proccesses are now relocatable, we use
+compaction to ``resolve'' external fragmentation (expensive and not always possible).
+given some vaddr, u can find the following with
+$ {\tt page} = {\tt vaddr} << b $,
+$ {\tt offset} = {\tt vaddr} \& ( (1 << b) - 1)$,
+${\tt physaddr} = ({\tt frame} << b) + {\tt offset}$, where frame is from the
+value at the index {\tt page} in the page table. 
