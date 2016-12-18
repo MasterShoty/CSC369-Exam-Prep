@@ -1,4 +1,4 @@
-{\bf File Systems, Deadlock, Security}
+\section{File Systems, Deadlock, Security}
 {\bf Recap of address
 translation}
 page replacement algorithms need to avoid thrashing (it prevents useful work). Some solutions
@@ -237,3 +237,31 @@ partially free at all times.
   Like SCAN, but only goes in one direction, like a typewriter
   (5) LOOK / C-LOOK
   Like SCAN / C-SCAN, but does not go the full width of the disk.
+
+% Lecture 11
+
+{\bf file system comparisons} table layout = (a): index structure, (b) index
+structure granularity, (c) free space mgmnt, (d) locality hueristcis.  FAT uses
+(a) LL, (b) block, (c) FAT array, (d) defragmentation.  FFS uses (a) Tree
+(inodes), (b) block, (c) bitmap, (d) block groups, reserved space.  NTFS uses
+(a) tree (extents), (b) extent, (c) bitmap, (d) best fit defragmentation.  {\bf
+FAT} has poor random access, poor locality, and limited file metadata and
+access control.  
+{\bf FFS} needs metadata updates to be {\it synchronous }, and
+file system operations affect mulitple metadata block.  because it is
+synchronous, we need to worry about crashes, here are solutions: (1) {\bf fsck}
+a post crash process that scans the file system structure and restores
+consistency, but cannot fix everything (like datablock consistency); checks
+superblock, free blocks, inode state, inode links, duplicates, bad blocks, and
+dir checks (. and .. first entries, etc). (2) {\bf journaling} this is
+write-ahead-logging. (1) write data, wait until complete, (2) meta data journal
+write, (3) metadata journal commit, (4) checkpoint metadata, (5) free. 
+% section
+{\bf log structured file system LSF} doesnt care about reads, assumes writes
+pose a bigger i/o penality, treats storage as circular log. this has simpler
+crash recovery, and writes are batched into large chunks, but the assumptoin is
+not always true, since reads are slower on HDDs. finding inodes is difficult,
+since they're scattered, so it uses an imap (also placed in chunks next to new
+info), and a checkpoint region (CR). Garbage collection is tricky. 
+{\bf redundancy} is used to prevent data loss (in case we have disk failures). {\bf RAID} (redundant array of independent disks) keeps a mirror of the disk. also, {\bf parity information}, XOR each bit from 2 drives, and store checksum on 3rd drive.
+{\bf SSD algorithms} wear levelling: always write to new location, keep a map from logical FS block num to current SSD block and page location; garbage collection: reclaiming stale pages and creating empty erased blocks; RAID5 (w/ parity checking) striping across i/o channles to multiple nand chips.
