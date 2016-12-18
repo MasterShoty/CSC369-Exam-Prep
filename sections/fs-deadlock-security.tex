@@ -14,61 +14,31 @@ referenced before reallocation.
 {\bf Where to store page
 tables } can store them in physical memory (no translation required) or in virtual memory.
 {\bf Managing swap space} here we can use a raw disk partition, or use a large
-file in FS. tradeoffs include choosing when the swap be allocated/freed.
-{\bf Address translation
-reduction}
-
-\begin{itemize}
-\item
-  Read Access (Load)
-\item
-  Address goes to Translation Lookaside Buffer (TLB) in Memory
+file in FS. tradeoffs include choosing when the swap be allocated/freed.  {\bf
+Address translation reduction} (1)  Read Access (Load)
+  (2) Address goes to Translation Lookaside Buffer (TLB) in Memory
   Management Unit (MMU)
-
-  \begin{itemize}
-  \item
-    TLB does lookup using page number of address
-  \item
-    Returns Page Table Entry (PTE) for the mapping of this address.
+  (3) TLB does lookup using page number of address
+  (4) Returns Page Table Entry (PTE) for the mapping of this address.
     \emph{Could Miss}
-  \item
-    TLB validates the PTE protection (allows read) \emph{Could Miss}
-  \item
-    PTE specifies which \emph{physical} frame holds the page
-  \item
-    MMU combines physical frame and offset into a \emph{physical
+  (5)  TLB validates the PTE protection (allows read) \emph{Could Miss}
+    (6)  PTE specifies which \emph{physical} frame holds the page
+    (7) MMU combines physical frame and offset into a \emph{physical
     address}.
-  \item
-    PTE specifies which \emph{physical} frame holds the page
-  \item
-    MMU combines physical frame and offset into a \emph{physical
+    (8) PTE specifies which \emph{physical} frame holds the page
+    (9) MMU combines physical frame and offset into a \emph{physical
     address}.
-  \item
-    MMU reads from that physical address and returns value to CPI.
-  \end{itemize}
-\item
+    (10) MMU reads from that physical address and returns value to CPI.
   This is all done by hardware.
-\item
   If the TLB does not have a mapping, either:
-
-  \begin{itemize}
-  \item
-    MMU loads PTE from page table in memory. (OS not involved in this)
-  \item
-    OS has already set up the page tables so the hardware can access it
+    (1)  MMU loads PTE from page table in memory. (OS not involved in this)
+    (2) OS has already set up the page tables so the hardware can access it
     directly.
-  \item
-    Trap to OS (Software managed TLB)
-  \item
-    OS does a lookup in page table and loads PTE into TLB.
-  \item
-    Return from the exception, and retry memory address.
-  \item
-    This is known as a \emph{minor page fault}. We have now created a
+    (3) Trap to OS (Software managed TLB)
+    (4) OS does a lookup in page table and loads PTE into TLB.
+    (5) Return from the exception, and retry memory address.
+    (6) This is known as a \emph{minor page fault}. We have now created a
     PTE for the addr in the TLB
-  \end{itemize}
-\end{itemize}
-
 {\bf Implementatoin concerns} How do we determine how much memory to give each
 process? We can use: (1) fixed space algorithms: when we reach space limit, do
 local replacement. or (2) variable space algorithms, where space of a page
