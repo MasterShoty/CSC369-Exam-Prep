@@ -31,7 +31,7 @@ given some vaddr, u can find the following with
 $ {\tt page} = {\tt vaddr} << b $,
 $ {\tt offset} = {\tt vaddr} \& ( (1 << b) - 1)$,
 ${\tt physaddr} = ({\tt frame} << b) + {\tt offset}$, where frame is from the
-value at the index {\tt page} in the page table. 
+value at the index {\tt page} in the page table.
 
 Memory for linear page tables is large, since 1PTE/page. We can reduce space by
 only mapping what is being used, so a page table for code/stack/heap, which
@@ -62,3 +62,14 @@ proccess accesses that page, PTE causes a trap (page fault), (3) trap will run
 OS page fault handler. (4) handler uses invalid PTE to find page in swp file.
 (5) reads page into physical frame, updates PTE to point ot it. (6) resume
 process. OS usually keeps pool of free pages so we dont always have to evict.
+
+{\bf policies } for virtual memory management include {\bf fetch policy} (when
+to get a page: demand vs prepaging), {\bf placement policy} (where to put the page) and {\bf
+replacement policy} (picking which page ot evict).
+with {\bf demand paging} Let ps = pages, p = page.\ ps are evicted to disk when memory is
+full.\ ps loaded from disk when referenced again, and references to evicted ps
+caus a TLB miss.\ the os allocates a p frame, reads p from disk.\ when i/o
+compltets, the os fills in teh PTE, marks it valid, and resumes faulting
+process. demand paging is also used when processes start up. the cost is a bit
+expensive since we need to give a single page whenever it needs it, instead of
+fetching a bunch at once. Prepaging tries to redict page use. {\bf placement policy}
