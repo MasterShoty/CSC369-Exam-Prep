@@ -32,3 +32,33 @@ $ {\tt page} = {\tt vaddr} << b $,
 $ {\tt offset} = {\tt vaddr} \& ( (1 << b) - 1)$,
 ${\tt physaddr} = ({\tt frame} << b) + {\tt offset}$, where frame is from the
 value at the index {\tt page} in the page table. 
+
+Memory for linear page tables is large, since 1PTE/page. We can reduce space by
+only mapping what is being used, so a page table for code/stack/heap, which
+means we need three pairs ofbase/bound registers, but this can cause external
+fragrmentation, since page tables can be arbitrary size (finding free space is
+difficult). So we use {\it multi level page tables}, which split a page table
+into pages of PTE (page table entries), and use a page table directory to point
+diff pages of PTE. {\tt Two level page tables }: virtual addresses (VAs) have 3
+parts: (1) page directory (1)master, which maps VA to secondary page table, (2) secondary
+page table which maps page num to physical frame, (3) offset selects address
+w/in physical frame. 32 bit address space => 4k pages => 4 bytes/pte => 12 bits
+offset => 10 bits master, 10 bits secondary. We can also use {\tt hashed page
+tables}, which maps virtual page number (vpn) to bucket, and u search entries
+in that bucket for vpn. {\tt inverted page tables} keep only one page table for
+the whole system, with an entry for each physical page frame (entry has vpn and
+pid), but this makes lookup slower.
+
+We use a {\bf TLB} to help with timing limitations, which translates vpns into
+PTE.\ these are implemented in the hardware, and they cache \{ vpn: vpe \}. Tlbs
+exploit locality, but TLB can still miss (99\% hit rate tho), and managing TLBs
+can happen via hardware or software. To {\bf manage page tables}, the OS needs
+to make sure that TLB is consistent w/ page table, so updating bit in a PTE =>
+updating TLB.\ On a context switch, the TLB needs to be reloaded. If the TLB
+misses and new PTE has to be loaded, a cached PTE needs ot be evicted. When a
+process accesses a page that has been evicted, (1) the OS sets the PTE as
+invalid, stores the locatio of the page in the swap file in PTE.\ (2) when a
+proccess accesses that page, PTE causes a trap (page fault), (3) trap will run
+OS page fault handler. (4) handler uses invalid PTE to find page in swp file.
+(5) reads page into physical frame, updates PTE to point ot it. (6) resume
+process. OS usually keeps pool of free pages so we dont always have to evict.
