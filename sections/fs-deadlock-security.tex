@@ -262,6 +262,47 @@ pose a bigger i/o penality, treats storage as circular log. this has simpler
 crash recovery, and writes are batched into large chunks, but the assumptoin is
 not always true, since reads are slower on HDDs. finding inodes is difficult,
 since they're scattered, so it uses an imap (also placed in chunks next to new
-info), and a checkpoint region (CR). Garbage collection is tricky. 
-{\bf redundancy} is used to prevent data loss (in case we have disk failures). {\bf RAID} (redundant array of independent disks) keeps a mirror of the disk. also, {\bf parity information}, XOR each bit from 2 drives, and store checksum on 3rd drive.
-{\bf SSD algorithms} wear levelling: always write to new location, keep a map from logical FS block num to current SSD block and page location; garbage collection: reclaiming stale pages and creating empty erased blocks; RAID5 (w/ parity checking) striping across i/o channles to multiple nand chips.
+info), and a checkpoint region (CR). Garbage collection is tricky.  {\bf
+redundancy} is used to prevent data loss (in case we have disk failures). {\bf
+RAID} (redundant array of independent disks) keeps a mirror of the disk. also,
+{\bf parity information}, XOR each bit from 2 drives, and store checksum on 3rd
+drive.  {\bf SSD algorithms} wear levelling: always write to new location, keep
+a map from logical FS block num to current SSD block and page location; garbage
+collection: reclaiming stale pages and creating empty erased blocks; RAID5 (w/
+parity checking) striping across i/o channles to multiple nand chips.
+
+% L12
+Non deadlock bugs include atomicity violations (use locks) and order violation
+(enforce ordering or extra checks). For deadlock to occur, mutual exclusion,
+hold and wait, and no preemption are necessary, and circular wait is sufficient
+for deadlock. Breaking one of the conditions means you don't have deadlock. For
+mutual exclusion, we can do some operations atomically, like an atomic increment ({\tt do \{ int
+old = *value; \} while (CompareAndSwap(value, old, old + amount) == 0); }.
+We can also break {\bf hold and wait}, where a process holds until it gets all
+of the resources, but this means that it could wait a while, and it limits
+concurrency. or we can break {\bf no preemption}, by forcibly removing a
+resource from one process and giving it to another (need to save state of
+losing process, or rollback, or something like that). or we could break {\bf
+circular wait} by assigning a linear ordering to resource types and requiring
+that a process holding a resource of one type can only request resources that
+follow in the ordering. two startegies for {\bf avoiding} deadlock: (1) don't
+start a process if max resource reqs + max needs of all processes > system
+resources. (2) don't grant an individual resource request if any future
+resource allocation path leads to deadlock. {\bf DEADLOCK AVOIDANCE ALGORITHM}
+for every resource request: (1) can request be granted? if no then block until
+grant is possible, else (2) assume request is granted, update state, then (3)
+if state is safe, continue, else restore old state and block process until its
+safe to grant. {\bf restrictions on avoidance} (1) max resource requirements
+for each process must be known in advance, (2) processes must be independent,
+(3) fixed number of resources to allocate. {\bf DEADLOCK RECOVERY} selectively
+kill deadlocked processes until cycle is broken (re-run detection algo after
+each kill).  {\bf ostrich algo } works because resoures are finite, processes
+wait if a resource they need is unavailable, resources may be held by other
+waiting processes.
+{\bf concurrent transactions} soln (1): all transactions execute in a critical
+section w/ a single common lock (this limits concurrency unnecessarily). (2)
+allow ops from multiple transactoins to overlap, as long as they dont conflict.
+{\bf ensuring serializability} use two-phase locking: individual data has their
+own lock, and each transaction has a growing phase and a shrinking phase. This
+does not guarantee deadlock-free, (cuz hold and wait), soln: abort and retry
+transaction if any lock is unavailable.
