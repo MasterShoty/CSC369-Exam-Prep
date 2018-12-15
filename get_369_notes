@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-mkdir 369notesRENAME 
-cd 369notesRENAME
-wget 'http://www.teach.cs.toronto.edu/~csc369h/fall/lectures.html' -q -O - | grep 'lectures/w\d' | sed 's!.*<a href="\.\{0,1\}/\{0,1\}\(.*\)".*!http://www.teach.cs.toronto.edu/~csc369h/fall/\1!g' | while read line; do wget $line; done;
-cd -
